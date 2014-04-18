@@ -178,8 +178,6 @@ void init(void)
 
 	};
 
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, NULL);
 	
 	glGenBuffers(1, &vertBuf);
 	glGenBuffers(1, &texBuf);
@@ -195,8 +193,9 @@ void init(void)
 	
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(tex_loc);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, NULL);
-
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
 }
 
@@ -228,6 +227,7 @@ void on_key(unsigned char key, int x, int y)
 void show_stuff(void)
 {
 
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUniform1fv(glGetUniformLocation(prog, "angle", 0), 1, &angle);
@@ -235,17 +235,18 @@ void show_stuff(void)
 
 	glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
-	glFlush();
+	glutSwapBuffers();
 }
 
 
 int main(int argc, char** argv)
 {
 	glutInit(&argc,argv);
-	glutCreateWindow("Lab 5");
 
-	glutInitContextVersion(4,3);
-	glutInitContextProfile(GLUT_CORE_PROFILE | GLUT_COMPATIBILITY_PROFILE);
+	glutInitContextVersion(3,3);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitContextProfile(GLUT_CORE_PROFILE);
+	glutCreateWindow("Lab 5");
 
 	init();
 
