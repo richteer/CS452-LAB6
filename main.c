@@ -3,8 +3,9 @@
 #include <GL/freeglut.h>
 #include <stdio.h>
 #include <time.h>
-#include <SOIL/SOIL.h>
+//#include <SOIL/SOIL.h>
 
+#include "img.c"
 #include "init_stuff.h"
 
 #define NOPE(a) (exit(a))
@@ -42,6 +43,12 @@ int num_vertices;
 
 void init(void)
 {
+	// MOAR init
+	int vaoID, vertBuf, elemBuf, texBuf;
+	int rot_pos, pos_pos, sca_pos;
+
+	glGenVertexArrays(1, &vaoID);
+	glBindVertexArray(vaoID);
 	prog = init_program(4, "vshader.glsl", GL_VERTEX_SHADER , "fshader.glsl", GL_FRAGMENT_SHADER);
 	if (prog < 0) {
 		fprintf(stderr,"Error: could not initialize program, bailing...\n");
@@ -57,13 +64,16 @@ void init(void)
 //	pos.y = 0.5f;
 //	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data);
 
-	// MOAR init
-	int vaoID, vertBuf, elemBuf, texBuf;
-	int rot_pos, pos_pos, sca_pos;
+	glGenTextures(1,&texID);
+	glBindTexture(GL_TEXTURE_2D,texID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gimp_image.width, gimp_image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, gimp_image.pixel_data);
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glGenVertexArrays(1, &vaoID);
-	glBindVertexArray(vaoID);
-	
+	glActiveTexture( GL_TEXTURE0 ); 	
+/*	
 	texID = SOIL_load_OGL_texture("img.png",SOIL_LOAD_AUTO,	SOIL_CREATE_NEW_ID,	
 		SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
 
@@ -71,8 +81,7 @@ void init(void)
         printf("SOIL derped\n");
 		NOPE(-1);
 	}
-
-	glBindTexture(GL_TEXTURE_2D,texID);
+*/
 
 /*
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -80,7 +89,6 @@ void init(void)
 	glTexParameterf( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	glTexParameterf( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 */
-	glActiveTexture( GL_TEXTURE0 ); 	
 
 	GLfloat vertices[] = {
 		-1, -1, -1,
@@ -184,6 +192,8 @@ void init(void)
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertBuf);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_TRUE, 0, NULL);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, texBuf);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texCor), texCor, GL_STATIC_DRAW);
@@ -194,8 +204,7 @@ void init(void)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(tex_loc);
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, NULL);
 
 }
 
@@ -231,7 +240,7 @@ void show_stuff(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUniform1fv(glGetUniformLocation(prog, "angle", 0), 1, &angle);
-	glUniform1iv(glGetUniformLocation(prog, "texture", 0), 1, &texID);
+	glUniform1i(glGetUniformLocation(prog, "texture", 0), 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
