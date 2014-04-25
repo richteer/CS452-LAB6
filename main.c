@@ -41,30 +41,28 @@ float scale = 1;
 int texID;
 int num_vertices;
 
+GLint object, shadow;
+
 void init(void)
 {
-	// MOAR init
 	int vaoID, vertBuf, elemBuf, texBuf;
 	int rot_pos, pos_pos, sca_pos;
 
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
-	prog = init_program(4, "vshader.glsl", GL_VERTEX_SHADER , "fshader.glsl", GL_FRAGMENT_SHADER);
-	if (prog < 0) {
+	object = init_program(4, "vshader.glsl", GL_VERTEX_SHADER , "fshader.glsl", GL_FRAGMENT_SHADER);
+	if (object < 0) {
 		fprintf(stderr,"Error: could not initialize program, bailing...\n");
 		NOPE(1);
 	}
-
-	glUseProgram(prog);
+	shadow = init_program(4, "vshadow.glsl", GL_VERTEX_SHADER , "fshadow.glsl", GL_FRAGMENT_SHADER);
+	if (shadow < 0) {
+		fprintf(stderr,"Error: could not initialize program, bailing...\n");
+		NOPE(1);
+	}
+	
 	glEnable(GL_DEPTH_TEST);
 
-//	glGenTextures(1,&texID);
-
-//	pos.x = 0.5f;
-//	pos.y = 0.5f;
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data);
-
-	glGenTextures(1,&texID);
 	glBindTexture(GL_TEXTURE_2D,texID);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gimp_image.width, gimp_image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, gimp_image.pixel_data);
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -73,22 +71,6 @@ void init(void)
 	glTexParameteri( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	glActiveTexture( GL_TEXTURE0 ); 	
-/*	
-	texID = SOIL_load_OGL_texture("img.png",SOIL_LOAD_AUTO,	SOIL_CREATE_NEW_ID,	
-		SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
-
-	if (texID == 0) {
-        printf("SOIL derped\n");
-		NOPE(-1);
-	}
-*/
-
-/*
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT );
-	glTexParameterf( GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-	glTexParameterf( GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-*/
 
 	GLfloat vertices[] = {
 		-1, -1, -1,
@@ -216,33 +198,39 @@ void on_idle(void) {
 	glutPostRedisplay();
 }
 
-// TODO: Write this
 void on_key(unsigned char key, int x, int y)
 {
 	switch(key) {
-		
-		// Rotation
-	
-		// Translation
-
-		// Scale
-
-	}
+	}	
 	glutPostRedisplay();
 }
 
+
+void renderFromLight(void)
+{
+	glUseProgram(shading); // See init()
+	pseudoBegin();
+	-> //Render the object(s) from the point of view of the light(s)
+	-> //Save the buffer as a texture 
+	-> //Determine the shadows being cast on surfaces obscured by the object (where can the camera at the light not see?)
+	pseudoEnd();
+}
+
+void renderObject(void)
+{
+	glUseProgram(object);
+	pseudoBegin();
+	-> // Render the object normally
+	-> // Apply shadow texture, transformed to fit the surfaces to the scene 
+	pseudoEnd();
+}
+
+
 void show_stuff(void)
 {
-
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glUniform1fv(glGetUniformLocation(prog, "angle", 0), 1, &angle);
-	glUniform1i(glGetUniformLocation(prog, "texture", 0), 0);
-
-	glDrawArrays(GL_TRIANGLES, 0, num_vertices);
-
-	glutSwapBuffers();
+	renderFromLight(); // See above
+	
+	renderObject();
 }
 
 

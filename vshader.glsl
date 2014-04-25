@@ -7,6 +7,11 @@ in vec2 intexCoords;
 out vec4 color;
 out vec2 texCoord;
 
+// Pass through some shadow location details
+in shadowin
+out shadow
+
+
 void main() {
 
 	float zang = 0.5235987755982988;
@@ -21,8 +26,11 @@ void main() {
 					 sin(angle),  0.0,  cos(angle), 0.0,
 					 0.0,         0.0,        0.0, 1.0);
 
+
+	// Standard vertex shading: show the object
 	gl_Position = rz * ry * vec4(position, 1.0);
-//`	color = vec4(position, 1.0);
+	shadow = shadowin // Pass through
+
 
 	color = vec4(1.0,1.0,1.0,1.0);
 	texCoord = intexCoords;
