@@ -1,3 +1,3 @@
-CS452-LAB5
+CS452-LAB6
 ==========
-Due Tuesday April 1
+Due Tuesday April 15

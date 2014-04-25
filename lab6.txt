@@ -1,0 +1,5 @@
+Create a plane. 
+Create a Polyhedron on the plane. example cylinder,cube,sphere etc.
+Create a light.
+Create a shadow casted by the object.
+Create Camera controls that spin around the cube. 
